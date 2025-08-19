@@ -34,17 +34,10 @@ def get_connection_string() -> Optional[str]:
     
     return connection_string
 
-def get_instrumentation_key() -> Optional[str]:
-    """
-    Obtiene la instrumentation key de Application Insights (método legacy)
-    """
-    return os.getenv('APPINSIGHTS_INSTRUMENTATIONKEY')
-
 def print_config_info():
     """Imprime información de configuración para debugging"""
     print("🔧 Configuración actual:")
     print(f"   Connection String: {'✅ Configurado' if get_connection_string() else '❌ No configurado'}")
-    print(f"   Instrumentation Key: {'✅ Configurado' if get_instrumentation_key() else '❌ No configurado'}")
 
 if __name__ == "__main__":
     print_config_info()

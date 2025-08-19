@@ -9,8 +9,7 @@ y envía logs estructurados a Azure Log Analytics.
 import logging
 import time
 import random
-import json
-import os
+import uuid
 from datetime import datetime
 from opencensus.ext.azure.log_exporter import AzureLogHandler
 from config import get_connection_string
@@ -76,6 +75,7 @@ class ECommerceSimulator:
         
         # Datos base de la operación
         operation_data = {
+            'operation_id': str(uuid.uuid4()),
             'timestamp': datetime.utcnow().isoformat(),
             'operation': operation,
             'user_id': user,
