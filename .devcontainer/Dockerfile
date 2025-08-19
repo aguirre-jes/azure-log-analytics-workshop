@@ -1,4 +1,4 @@
-# Use the official Python 3.11 image as base
+# Use the official Python 3.12 image as base
 FROM mcr.microsoft.com/devcontainers/python:3.12
 
 # Install additional system dependencies
