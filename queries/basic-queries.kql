@@ -2,11 +2,6 @@
 // QUERIES BÁSICAS PARA EL WORKSHOP
 // Azure Log Analytics - KQL Queries
 // ====================================
-
-// ====================================
-// QUERIES BASICAS
-// ====================================
-
 // 1. Contar errores recientes (ideal para alerta de errores)
 AppTraces
 | where TimeGenerated > ago(5m)
@@ -38,8 +33,47 @@ AppTraces
 | summarize count() by bin(TimeGenerated, 1m)
 | render timechart
 
-// 6. Filtrar por operation_id específico (trazabilidad de una operación)
+
+// ====================================
+// ALERTAS PERSONALIZADAS (Opcional)
+// ====================================
+// Estas consultas son sugerencias para crear alertas simples y útiles.
+// Puedes usarlas como base y adaptarlas según tus necesidades.
+
+// 1. Pico de actividad (actividad inusual)
 AppTraces
-| where TimeGenerated > ago(1d)
+| where TimeGenerated > ago(5m)
+| summarize total_logs = count()
+
+// 2. Errores de base de datos
+AppTraces
+| where TimeGenerated > ago(30m)
 | extend props = parse_json(Properties)
-| where props.operation_id == "268638aa-bf04-464b-ba68-3fdfba3502d7"
+| where props.error_category == "database"
+| summarize db_errors = count()
+
+// 3. Errores de autenticación
+AppTraces
+| where TimeGenerated > ago(30m)
+| extend props = parse_json(Properties)
+| where props.error_category == "authentication"
+| summarize auth_errors = count()
+
+// 4. Errores de pago
+AppTraces
+| where TimeGenerated > ago(10m)
+| extend props = parse_json(Properties)
+| where props.error_category == "payment"
+| summarize payment_errors = count()
+
+// 5. Caída de actividad (no hay logs)
+AppTraces
+| where TimeGenerated > ago(10m)
+| summarize total_logs = count()
+
+//6. Errores criticos 
+AppTraces
+| where TimeGenerated > ago(10m)
+| where SeverityLevel == 4
+| summarize critical_count = count()
+
