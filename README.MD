@@ -14,6 +14,8 @@ Al completar este workshop, habrás aprendido:
 
 ## 📋 Prerrequisitos
 
+Para instrucciones detalladas y recomendaciones, consulta la guía:  [docs/01-prerequisites.md](docs/01-prerequisites.md)
+
 - **Cuenta de Azure** con permisos para crear recursos
 - **Docker Desktop o Podman Desktop** instalado y funcionando
 - **Visual Studio Code** con extensión Dev Containers
@@ -22,6 +24,8 @@ Al completar este workshop, habrás aprendido:
 ## ⚙️ Configuración Inicial Crítica
 
 ### **🚨 IMPORTANTE: Configurar tu Container Engine**
+
+Para instrucciones detalladas y recomendaciones, consulta la guía:  [docs/01-devcontainer-setup](docs/01-devcontainer-setup)
 
 Antes de abrir el devcontainer, **debes configurar VS Code** para usar tu engine de contenedores:
 
@@ -110,6 +114,8 @@ admin_email = "tu-email@ejemplo.com"
 
 ### 4. Deploy de Infraestructura
 
+Para instrucciones detalladas y recomendaciones, consulta la guía:  [docs/02-infrastructure-deployment.md](docs/02-infrastructure-deployment.md)
+
 ```bash
 # Login a Azure
 az login
@@ -117,11 +123,14 @@ az login
 # Deploy con Terraform
 cd terraform
 terraform init
-terraform plan
-terraform apply
+terraform plan -out=tfplan.out
+terraform apply tfplan.out
 ```
 
 ### 5. Configurar la Aplicación
+
+Para instrucciones detalladas y recomendaciones, consulta la guía:  
+[docs/03-application-setup](docs/03-application-setup)
 
 ```bash
 # Obtener connection string
@@ -143,6 +152,8 @@ python app.py
 ```
 
 ### 7. Explorar en Azure Portal
+
+Para instrucciones detalladas y recomendaciones, consulta la guía:  [docs/04-exploring-logs](docs/04-exploring-logs)
 
 1. Ve a [Azure Portal](https://portal.azure.com)
 2. Busca tu Log Analytics Workspace
@@ -172,13 +183,15 @@ El archivo `queries/basic-queries.kql` contiene ejemplos de:
 
 ## 🚨 Crear tu Primera Alerta
 
+Para instrucciones detalladas y recomendaciones, consulta la guía: [docs/05-creating-alerts](docs/05-creating-alerts)
+
 1. En Azure Portal → Log Analytics → Logs
 2. Ejecuta esta consulta:
    ```kql
-   traces
-   | where timestamp > ago(5m)
-   | where severityLevel >= 3
-   | summarize count()
+   AppTraces
+   | where TimeGenerated > ago(5m)
+   | where SeverityLevel >= 3
+   | summarize error_count = count()
    ```
 3. Haz clic en "New Alert Rule"
 4. Configura condición: `count > 5`
