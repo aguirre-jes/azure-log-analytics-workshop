@@ -16,7 +16,6 @@
         "ms-python.python",
         "ms-python.pylint",
         "hashicorp.terraform",
-        "ms-vscode.azure-account",
         "ms-azuretools.vscode-azureresourcegroups"
       ],
       "settings": {
