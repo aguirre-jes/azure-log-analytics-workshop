@@ -1,5 +1,5 @@
 # Use the official Python 3.11 image as base
-FROM mcr.microsoft.com/devcontainers/python:3.12
+FROM mcr.microsoft.com/devcontainers/python:3.13
 
 # Install additional system dependencies
 RUN apt-get update && apt-get install -y \
