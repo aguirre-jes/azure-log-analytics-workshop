@@ -15,7 +15,8 @@ WORKDIR /workspace
 
 # Copy requirements and install Python packages
 COPY src/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN python -m pip install --upgrade pip==25.2 && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Set environment variables
 ENV PYTHONPATH=/workspace/src
