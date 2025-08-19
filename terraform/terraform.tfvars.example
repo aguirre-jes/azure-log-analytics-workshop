@@ -1,0 +1,15 @@
+# Azure Subscription ID (required)
+subscription_id = "tu subscription_id"
+
+# Email for alert notifications (required)
+admin_email = "tu correo"
+
+# Optional: Customize resource names
+# resource_group_name = "rg-log-analytics-workshop"
+# location = "East US"
+# log_analytics_workspace_name = "law-workshop"
+# application_insights_name = "ai-workshop"
+# action_group_name = "ag-workshop"
+
+# Optional: Add prefix to ensure unique resource names
+# prefix = "username"
