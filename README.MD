@@ -123,8 +123,8 @@ az login
 # Deploy con Terraform
 cd terraform
 terraform init
-terraform plan
-terraform apply
+terraform plan -out=tfplan.out
+terraform apply tfplan.out
 ```
 
 ### 5. Configurar la Aplicación

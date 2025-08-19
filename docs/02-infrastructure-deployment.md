@@ -140,7 +140,7 @@ terraform validate
 terraform fmt
 
 # Verificar configuración
-terraform plan
+terraform plan -out=tfplan.out
 ```
 
 #### **📊 Plan Output esperado:**
@@ -156,18 +156,8 @@ Changes to Outputs:
 ### **3. Desplegar Infraestructura**
 
 ```bash
-terraform apply
+terraform apply tfplan.out
 ```
-
-**⚠️ Terraform te pedirá confirmación:**
-```
-Do you want to perform these actions?
-  Terraform will perform the actions described above.
-  Only 'yes' will be accepted to approve.
-
-  Enter a value: yes
-```
-
 #### **📊 Salida de éxito:**
 ```
 Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
