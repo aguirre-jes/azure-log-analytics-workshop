@@ -150,12 +150,27 @@ class ECommerceSimulator:
         return operation_data
 
 def log_operation(operation_data, is_error=False):
-    """Registra una operación en los logs"""
+    """Registra una operación en los logs con diferentes niveles de severidad"""
     if is_error:
-        logger.error(
-            f"Operation failed: {operation_data['operation']}",
-            extra={'custom_dimensions': operation_data}
-        )
+        # Nivel 4: Critical para errores graves
+        critical_errors = ['DB_TIMEOUT', 'PAYMENT_FAILED']
+        if operation_data.get('error_code') in critical_errors:
+            logger.critical(
+                f"CRITICAL failure: {operation_data['operation']}",
+                extra={'custom_dimensions': operation_data}
+            )
+        # Nivel 2: Warning para errores de inventario o seguridad
+        elif operation_data.get('error_code') in ['PRODUCT_UNAVAILABLE', 'RATE_LIMIT_EXCEEDED']:
+            logger.warning(
+                f"Warning: {operation_data['operation']}",
+                extra={'custom_dimensions': operation_data}
+            )
+        # Nivel 3: Error para el resto
+        else:
+            logger.error(
+                f"Operation failed: {operation_data['operation']}",
+                extra={'custom_dimensions': operation_data}
+            )
     else:
         logger.info(
             f"Operation successful: {operation_data['operation']}",
