@@ -3,201 +3,43 @@
 // Azure Log Analytics - KQL Queries
 // ====================================
 
-// NOTA: Los datos pueden estar en diferentes tablas según el tipo de telemetría
-// Primero verifica qué tablas tienen datos:
-// search "*" | distinct $table | sort by $table asc
-
 // ====================================
-// QUERIES PARA ENCONTRAR TUS DATOS
+// QUERIES BASICAS
 // ====================================
 
-// 1. Ver todas las tablas disponibles con datos
-search "*" 
-| where TimeGenerated > ago(2h)
-| distinct $table 
-| sort by $table asc
-
-// 2. Ver datos en AppTraces (logs de aplicación)
+// 1. Contar errores recientes (ideal para alerta de errores)
 AppTraces
-| where TimeGenerated > ago(1h)
-| project TimeGenerated, Message, SeverityLevel, Properties
-| order by TimeGenerated desc
-| limit 100
+| where TimeGenerated > ago(5m)
+| where SeverityLevel >= 3
+| summarize error_count = count()
 
-// 3. Ver datos en AppEvents (eventos custom)
-AppEvents
-| where TimeGenerated > ago(1h)
-| project TimeGenerated, Name, Properties
-| order by TimeGenerated desc
-| limit 50
-
-// ====================================
-// QUERIES FUNCIONALES - USANDO APPTRACES
-// ====================================
-
-// 4. Contar logs por nivel de severidad
+// 2. Contar advertencias y errores recientes
 AppTraces
-| where TimeGenerated > ago(1h)
-| extend SeverityName = case(
-    SeverityLevel == 0, "Verbose",
-    SeverityLevel == 1, "Information", 
-    SeverityLevel == 2, "Warning",
-    SeverityLevel == 3, "Error",
-    SeverityLevel == 4, "Critical",
-    "Unknown"
-)
-| summarize count() by SeverityName
-| render piechart
+| where TimeGenerated > ago(10m)
+| where SeverityLevel >= 2
+| summarize warning_or_error_count = count()
 
-// 5. Ver solo los errores
+// 3. Contar todos los logs recientes (actividad general)
 AppTraces
-| where TimeGenerated > ago(1h) and SeverityLevel >= 3
-| project TimeGenerated, Message, Properties
-| order by TimeGenerated desc
+| where TimeGenerated > ago(10m)
+| summarize total_logs = count()
 
-// 6. Top operaciones más frecuentes
+// 4. Actividad de usuarios (operaciones por usuario)
 AppTraces
-| where TimeGenerated > ago(1h)
-| extend operation = tostring(Properties.operation)
-| where isnotempty(operation)
-| summarize count() by operation
-| order by count_ desc
-| limit 10
-
-// 7. Actividad de usuarios
-AppTraces
-| where TimeGenerated > ago(1h)
+| where TimeGenerated > ago(30m)
 | extend user_id = tostring(Properties.user_id)
 | where isnotempty(user_id)
 | summarize operations = count() by user_id
 | order by operations desc
 
-// 8. Timeline de actividad (por 5 minutos)
-AppTraces
-| where TimeGenerated > ago(1h)
-| summarize count() by bin(TimeGenerated, 5m)
-| render timechart
-
-// 9. Errores por categoría
-AppTraces
-| where TimeGenerated > ago(2h) and SeverityLevel >= 3
-| extend error_category = tostring(Properties.error_category)
-| where isnotempty(error_category)
-| summarize count() by error_category
-| render barchart
-
-// 10. Operaciones de e-commerce específicas
-AppTraces
-| where TimeGenerated > ago(1h)
-| extend operation = tostring(Properties.operation)
-| where operation in ("checkout", "payment_process")
-| project TimeGenerated, operation, Properties.user_id, Properties.amount, SeverityLevel
-| order by TimeGenerated desc
-
-// ====================================
-// QUERIES ALTERNATIVAS - SI LOS DATOS ESTÁN EN OTRAS TABLAS
-// ====================================
-
-// 11. Buscar en todas las tablas logs con "operation"
-union AppTraces, AppEvents, AppExceptions
-| where TimeGenerated > ago(1h)
-| where * contains "operation"
-| project TimeGenerated, $table, *
-| limit 50
-
-// 12. Ver excepciones de la aplicación
-AppExceptions
-| where TimeGenerated > ago(1h)
-| project TimeGenerated, ProblemId, ExceptionType, ExceptionMessage, Properties
-| order by TimeGenerated desc
-
-// ====================================
-// QUERIES PARA MONITOREO Y ALERTAS
-// ====================================
-
-// 13. Query para alerta: Más de 5 errores en 5 minutos
-AppTraces
-| where TimeGenerated > ago(5m)
-| where SeverityLevel >= 3
-| summarize error_count = count()
-| where error_count > 5
-
-// 14. Query para alerta: Rate de errores alto (>20%)
-AppTraces
-| where TimeGenerated > ago(10m)
-| summarize total = count(), errors = countif(SeverityLevel >= 3)
-| extend error_rate = (errors * 100.0) / total
-| where error_rate > 20
-
-// 15. Query para monitoreo: Operaciones por minuto
+// 5. Timeline de actividad (logs por minuto)
 AppTraces
 | where TimeGenerated > ago(30m)
 | summarize count() by bin(TimeGenerated, 1m)
 | render timechart
 
-// ====================================
-// QUERIES ADICIONALES Y ALTERNATIVAS
-// ====================================
-
-// 18. Distribución de logs por hora (más visual)
+// 6. Filtrar por operation_id específico (trazabilidad de una operación)
 AppTraces
-| where TimeGenerated > ago(24h)
-| summarize count() by bin(TimeGenerated, 1h)
-| render columnchart
-
-// 19. Contar logs por nivel (tabla simple)
-AppTraces
-| where TimeGenerated > ago(1h)
-| extend SeverityName = case(
-    SeverityLevel == 0, "Verbose",
-    SeverityLevel == 1, "Information", 
-    SeverityLevel == 2, "Warning",
-    SeverityLevel == 3, "Error",
-    SeverityLevel == 4, "Critical",
-    "Unknown"
-)
-| summarize Count = count() by SeverityName
-| order by Count desc
-
-// 20. Búsquedas más populares
-AppTraces
-| where TimeGenerated > ago(1h)
-| extend operation = tostring(Properties.operation)
-| extend search_term = tostring(Properties.search_term)
-| where operation == "product_search" and isnotempty(search_term)
-| summarize searches = count() by search_term
-| order by searches desc
-
-// 21. Productos más vistos
-AppTraces
-| where TimeGenerated > ago(1h)
-| extend operation = tostring(Properties.operation)
-| extend product_name = tostring(Properties.product_name)
-| where operation == "product_view" and isnotempty(product_name)
-| summarize views = count() by product_name
-| order by views desc
-
-// 22. Resumen de actividad por usuario
-AppTraces
-| where TimeGenerated > ago(1h)
-| extend user_id = tostring(Properties.user_id)
-| extend operation = tostring(Properties.operation)
-| where isnotempty(user_id) and isnotempty(operation)
-| summarize 
-    total_operations = count(),
-    unique_operations = dcount(operation),
-    operations = make_set(operation)
-by user_id
-| order by total_operations desc
-
-// 16. Ver todas las tablas con datos recientes
-union AppTraces, AppEvents, AppExceptions, AppRequests, AppDependencies
-| where TimeGenerated > ago(2h)
-| summarize count() by $table
-| sort by count_ desc
-
-// 17. Ver cualquier dato de Application Insights
-search "*" 
-| where TimeGenerated > ago(2h)
-| where $table startswith "App"
-| take 20
+| where TimeGenerated > ago(1d)
+| extend props = parse_json(Properties)
+| where props.operation_id == "268638aa-bf04-464b-ba68-3fdfba3502d7"

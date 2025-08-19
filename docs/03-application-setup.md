@@ -109,7 +109,6 @@ python config.py
 ```
 🔧 Configuración actual:
    Connection String: ✅ Configurado
-   Instrumentation Key: ❌ No configurado
 ```
 
 ---
