@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Python virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+*.env
+
+# VS Code settings (except .vscode/settings.json if you want to keep it)
+.vscode/*
+!.vscode/settings.json
+
+# Devcontainer local state
+.devcontainer/*.local
+
+# Terraform state files
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+
+# Terraform variable files with secrets
+terraform/terraform.tfvars
+
+# Logs and data
+logs/
+data/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.bak
